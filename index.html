@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Smart Water Reuse — Home</title>
+<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+<link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet">
+<style>
+:root{--aqua:#00B4D8;--deep:#0077B6;--eco:#43AA8B;}
+body{font-family:Inter,system-ui,Arial;background:linear-gradient(180deg,#F8FFFF,#E8FBFB);}
+.navglass{background:rgba(255,255,255,0.6);backdrop-filter:blur(6px);}
+.hero{background-image:linear-gradient(180deg, rgba(0,180,216,0.08), rgba(67,170,139,0.03)), url('assets/hero-placeholder.jpg'); background-size:cover; background-position:center;}
+.card{transition:transform .3s ease,box-shadow .3s ease;}
+.card:hover{transform:translateY(-6px);box-shadow:0 8px 24px rgba(0,0,0,0.08);}
+.badge{background:linear-gradient(90deg,var(--aqua),var(--eco)); color:white; padding:6px 10px; border-radius:999px; font-weight:600;}
+</style>
+</head>
+<body>
+<nav class="fixed w-full z-40 navglass">
+  <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-full bg-gradient-to-br from-[#00B4D8] to-[#43AA8B] flex items-center justify-center text-white font-bold">SW</div>
+      <div>
+        <a href="#" class="font-semibold text-lg">Smart Water Reuse</a>
+        <div class="text-xs text-gray-500">Recycle · Reduce · Reuse</div>
+      </div>
+    </div>
+    <div class="hidden md:flex items-center gap-4">
+      <a href="#dictionary" class="text-sm hover:text-[#0077B6]">Dictionary</a>
+      <a href="dashboard.html" class="text-sm hover:text-[#0077B6]">Dashboard</a>
+      <a href="#contact" class="text-sm hover:text-[#0077B6]">Contact</a>
+      <button id="darkToggle" class="ml-4 px-3 py-1 rounded-full border text-sm">Dark</button>
+    </div>
+    <div class="md:hidden">
+      <button id="menuBtn" class="px-3 py-2 rounded bg-[#00B4D8] text-white">Menu</button>
+    </div>
+  </div>
+</nav>
+
+<header class="hero h-screen flex items-center" id="home">
+  <div class="max-w-6xl mx-auto px-6 py-24 w-full">
+    <div class="grid md:grid-cols-2 gap-8 items-center">
+      <div data-aos="fade-right">
+        <h1 class="text-4xl md:text-5xl font-extrabold leading-tight text-[#023e52]">Smart Water Reuse System — Recycle. Reduce. Reuse.</h1>
+        <p class="mt-4 text-lg text-gray-700">Simulate industry-specific water pollution for a region and get a tailored primary→secondary→tertiary plan to recover water. Use the Dictionary to find your industry and enter your region/district.</p>
+        <div class="mt-6 flex gap-4">
+          <a href="#dictionary" class="px-6 py-3 rounded-full badge" onclick="document.getElementById('dictionary').scrollIntoView({behavior:'smooth'})">Find Your Industry</a>
+          <a href="dashboard.html" class="px-6 py-3 rounded-full border text-sm" onclick="">Open Dashboard</a>
+        </div>
+      </div>
+      <div data-aos="fade-left">
+        <div class="p-6 bg-white rounded-2xl card shadow">
+          <h3 class="font-semibold text-[#0077B6]">How it works — Quick</h3>
+          <ol class="mt-3 text-sm space-y-2">
+            <li>1. Search your industry in the Dictionary.</li>
+            <li>2. Enter your region/district (acts as location tag).</li>
+            <li>3. Get an industry-specific simulated water condition and treatment plan.</li>
+            <li>4. Save to Dashboard or export the plan.</li>
+          </ol>
+          <div class="mt-4 text-xs text-gray-500"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<section id="dictionary" class="py-12">
+  <div class="max-w-6xl mx-auto px-6">
+    <h2 class="text-2xl font-bold text-[#0077B6]" data-aos="fade-up">Industry Dictionary</h2>
+    <p class="text-sm text-gray-600 mt-2" data-aos="fade-up" data-aos-delay="50">Search for an industry, add a region/district tag, and simulate.</p>
+
+    <div class="mt-6 grid md:grid-cols-3 gap-6">
+      <div class="md:col-span-2 p-6 card rounded-2xl bg-white" data-aos="fade-up">
+        <label class="block text-sm font-medium text-gray-700">Industry</label>
+        <input id="industrySearch" list="industryList" placeholder="Type to search (eg. Leather)" class="w-full mt-2 p-3 rounded-lg border" />
+        <datalist id="industryList"></datalist>
+
+        <label class="block text-sm font-medium text-gray-700 mt-4">Region / District (eg. Indore)</label>
+        <input id="regionInput" type="text" placeholder="District or region tag" class="w-full mt-2 p-3 rounded-lg border" />
+
+        <div class="mt-4 flex gap-3">
+          <button id="startSim" class="px-5 py-2 rounded-full bg-[#00B4D8] text-white font-semibold" style = "color: #43AA8B;">Simulate</button>
+          <button id="clearInputs" class="px-5 py-2 rounded-full border">Clear</button>
+        </div>
+
+        <div class="mt-6 text-sm text-gray-500">Tip: Region tag will be used to show typical local baseline water quality (simulated).</div>
+      </div>
+
+      <div class="p-6 rounded-2xl card bg-[#F8FDFF]" data-aos="fade-left">
+        <h3 class="font-semibold text-[#0077B6]">Saved Simulations</h3>
+        <div id="savedList" class="mt-4 text-sm text-gray-700 space-y-3"></div>
+        <div class="mt-6">
+          <button id="clearSaved" class="text-sm text-red-600">Clear saved</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="contact" class="py-12 bg-white">
+  <div class="max-w-6xl mx-auto px-6">
+    <h2 class="text-2xl font-bold text-[#0077B6]" data-aos="fade-up">Contact / Join Us</h2>
+    <div class="mt-6 grid md:grid-cols-2 gap-6">
+      <form id="contactForm" class="p-6 rounded-2xl bg-white" data-aos="fade-up">
+        <label class="block text-sm font-medium">Name</label>
+        <input id="cname" class="w-full mt-2 p-3 rounded border" required/>
+        <label class="block text-sm font-medium mt-4">Email</label>
+        <input id="cemail" type="email" class="w-full mt-2 p-3 rounded border" required/>
+        <label class="block text-sm font-medium mt-4">Message</label>
+        <textarea id="cmsg" class="w-full mt-2 p-3 rounded border"></textarea>
+        <div class="mt-4">
+          <button type="submit" class="px-4 py-2 rounded-full bg-[#00B4D8] text-white" style = "color: #43AA8B;">Send</button>
+        </div>
+      </form>
+      <div class="p-6 rounded-2xl bg-white" data-aos="fade-left">
+        <h3 class="font-semibold">Admin</h3>
+        <p class="text-sm mt-3">Email: admin@smartwater.example</p>
+        <p class="text-sm mt-3">All data is stored</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="py-6 bg-white border-t">
+  <div class="max-w-6xl mx-auto px-6 text-center text-sm text-gray-600">
+    © 2025 Smart Water Reuse Initiative | Built by EchoForge
+  </div>
+</footer>
+
+<script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+<script>
+AOS.init();
+// industry dataset with specific pollutants
+const industries = {
+  "Leather": {"tds":800,"ph":5.5,"turbidity":40,"contamination":"High","specific":"Chromium, Sulfides","primary":["Screening","Grit removal","Equalization"],"secondary":["Anaerobic lagoon","Activated sludge"],"tertiary":["Carbon adsorption","Membrane filtration","pH adjustment"]},
+  "Textile": {"tds":600,"ph":6.5,"turbidity":30,"contamination":"High","specific":"Azo dyes, Salts","primary":["Equalization tank","Coagulation"],"secondary":["Oxidation ponds","MBBR"],"tertiary":["Nanofiltration","Advanced oxidation"]},
+  "Dairy": {"tds":350,"ph":6.8,"turbidity":12,"contamination":"Medium","specific":"Organic load, Fats","primary":["Screening","Sedimentation"],"secondary":["Activated sludge"],"tertiary":["Sand filtration","UV"]},
+  "Pharma": {"tds":900,"ph":4.8,"turbidity":50,"contamination":"Very High","specific":"APIs","primary":["Neutralization","Screening"],"secondary":["Biological treatment","SBR"],"tertiary":["Reverse osmosis","Advanced oxidation"]},
+  "Beverage": {"tds":300,"ph":7.0,"turbidity":8,"contamination":"Low","specific":"Sugars, Organics","primary":["Screening"],"secondary":["Aerated lagoons"],"tertiary":["Sand filtration","Chlorination"]},
+  "Paper": {"tds":700,"ph":7.5,"turbidity":35,"contamination":"High","specific":"Organic colorants, Lignin","primary":["Screening","Grit removal"],"secondary":["Activated sludge"],"tertiary":["Membrane filtration","Bleach treatment"]}
+};
+
+// populate datalist
+const dl = document.getElementById('industryList');
+Object.keys(industries).forEach(k=>{ const opt = document.createElement('option'); opt.value = k; dl.appendChild(opt); });
+
+// simulate button
+document.getElementById('startSim').addEventListener('click', ()=>{
+  const ind = document.getElementById('industrySearch').value.trim();
+  const region = document.getElementById('regionInput').value.trim() || 'Unknown Region';
+  if(!ind || !industries[ind]){ alert('Please select a valid industry from list (eg. Leather)'); return; }
+  const sims = JSON.parse(localStorage.getItem('sims') || '[]');
+  const entry = {industry:ind, region:region, timestamp:Date.now(), base:industries[ind]};
+  sims.push(entry);
+  localStorage.setItem('sims', JSON.stringify(sims));
+  // open industry page
+  const qs = '?industry='+encodeURIComponent(ind)+'&region='+encodeURIComponent(region);
+  window.open('industry.html'+qs,'_blank');
+});
+
+// saved list
+function renderSaved(){
+  const sims = JSON.parse(localStorage.getItem('sims') || '[]').slice(-6).reverse();
+  const container = document.getElementById('savedList');
+  container.innerHTML = '';
+  sims.forEach(s=>{
+    const el = document.createElement('div');
+    el.className = 'p-3 rounded border text-sm flex justify-between items-center';
+    el.innerHTML = `<div>${s.industry} — ${s.region}</div><div><button class="openSim px-2 py-1 text-xs rounded bg-[#00B4D8] text-white" data-i="${s.industry}" data-r="${s.region}">Open</button></div>`;
+    container.appendChild(el);
+  });
+  document.querySelectorAll('.openSim').forEach(b=>b.addEventListener('click',e=>{
+    const i=e.target.dataset.i, r=e.target.dataset.r;
+    window.open('industry.html?industry='+encodeURIComponent(i)+'&region='+encodeURIComponent(r),'_blank');
+  }));
+}
+document.getElementById('clearSaved').addEventListener('click', ()=>{ localStorage.removeItem('sims'); renderSaved(); });
+renderSaved();
+
+// contact
+document.getElementById('contactForm').addEventListener('submit', (e)=>{
+  e.preventDefault();
+  const name = document.getElementById('cname').value, email = document.getElementById('cemail').value, msg = document.getElementById('cmsg').value;
+  const contacts = JSON.parse(localStorage.getItem('contacts') || '[]');
+  contacts.push({name,email,msg,ts:Date.now()});
+  localStorage.setItem('contacts', JSON.stringify(contacts));
+  alert('Message saved locally. Admin email: admin@smartwater.example');
+  e.target.reset();
+});
+
+// dark toggle
+document.getElementById('darkToggle').addEventListener('click', ()=>{
+  document.documentElement.classList.toggle('dark');
+  const on = document.documentElement.classList.contains('dark');
+  document.getElementById('darkToggle').innerText = on ? 'Light' : 'Dark';
+  document.body.style.background = on ? '#08161A' : 'linear-gradient(180deg,#F8FFFF,#E8FBFB)';
+});
+</script>
+</body>
+</html>

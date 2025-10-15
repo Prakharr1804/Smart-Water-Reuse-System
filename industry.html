@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Industry Simulation</title>
+<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+<link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet">
+<style>
+:root{--aqua:#00B4D8;--deep:#0077B6;--eco:#43AA8B;}
+body{font-family:Inter,system-ui,Arial;background:#F8FFFF;}
+.card{transition:transform .25s ease;}
+.card:hover{transform:translateY(-6px);}
+.indicator{padding:8px 12px;border-radius:12px;color:white;font-weight:600;}
+.ind-low{background:linear-gradient(90deg,#43AA8B,#2F9E73);}
+.ind-med{background:linear-gradient(90deg,#FFB703,#F77F00);}
+.ind-high{background:linear-gradient(90deg,#ef476f,#d0006f);}
+</style>
+</head>
+<body>
+<nav class="p-4 bg-white shadow">
+  <div class="max-w-6xl mx-auto flex justify-between items-center px-4">
+    <div><a href="index.html" class="font-semibold text-lg">← Back to Home</a></div>
+    <div class="text-sm text-gray-600">Industry Simulation</div>
+  </div>
+</nav>
+
+<main class="max-w-6xl mx-auto p-6">
+  <div id="header" class="p-6 bg-white rounded-2xl card" data-aos="fade-up">
+    <h2 class="text-xl font-bold" id="industryTitle">Industry — ...</h2>
+    <p class="text-sm text-gray-600 mt-1" id="regionTitle">Region: ...</p>
+  </div>
+
+  <div class="mt-6 grid md:grid-cols-3 gap-6">
+    <div class="p-6 bg-white rounded-2xl card" data-aos="fade-up">
+      <h4 class="font-semibold">Approximate Water Condition</h4>
+      <div class="mt-3 text-sm">
+        <div id="estPH">pH: --</div>
+        <div id="estTDS">TDS: -- ppm</div>
+        <div id="estTurb">Turbidity: -- NTU</div>
+        <div id="estCont">Contamination: --</div>
+        <div class="mt-3"><span id="pollIndicator" class="indicator">--</span></div>
+        <div class="mt-4 text-xs text-gray-500" id="specificPoll">Specific pollutants: --</div>
+      </div>
+    </div>
+
+    <div class="p-6 bg-white rounded-2xl card" data-aos="fade-up">
+      <h4 class="font-semibold">Manual Pollution Input</h4>
+      <p class="text-sm mt-2">Simulate measured data from site.</p>
+      <label class="block text-sm mt-3">TDS (ppm)</label>
+      <input id="addTDS" type="number" class="w-full mt-2 p-2 rounded border" />
+      <label class="block text-sm mt-3">pH</label>
+      <input id="addPH" type="number" step="0.1" class="w-full mt-2 p-2 rounded border" />
+      <label class="block text-sm mt-3">Turbidity (NTU)</label>
+      <input id="addTurb" type="number" class="w-full mt-2 p-2 rounded border" />
+      <div class="mt-4 flex gap-3">
+        <button id="applyPoll" class="px-4 py-2 rounded bg-[#00B4D8] text-white">Apply</button>
+        <button id="resetPoll" class="px-4 py-2 rounded border">Reset</button>
+      </div>
+      <div class="mt-3 text-xs text-gray-500">Applying updates will recalculate pollution index and suggested plan.</div>
+    </div>
+
+    <div class="p-6 bg-white rounded-2xl card" data-aos="fade-up">
+      <h4 class="font-semibold">Quick Actions & Equipment</h4>
+      <div id="quickActions" class="mt-3 text-sm"></div>
+      <div class="mt-4">
+        <h5 class="font-semibold">Suggested Equipment</h5>
+        <ul id="equipList" class="mt-2 text-sm list-disc list-inside"></ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-6 p-6 bg-white rounded-2xl card" data-aos="fade-up">
+    <h3 class="font-semibold">Treatment Plan (Primary → Secondary → Tertiary)</h3>
+    <div id="planArea" class="mt-4 text-sm space-y-3"></div>
+    <div class="mt-4">
+      <button id="exportPlan" class="px-4 py-2 rounded bg-[#43AA8B] text-white">Export Plan (JSON)</button>
+      <button id="saveSim" class="px-4 py-2 rounded border ml-2">Save to Dashboard</button>
+    </div>
+  </div>
+
+  <div class="mt-6 p-6 bg-white rounded-2xl card" data-aos="fade-up">
+    <h3 class="font-semibold">Step-by-step Walkthrough</h3>
+    <ol id="walkthrough" class="list-decimal list-inside mt-3 text-sm"></ol>
+  </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+<script>
+AOS.init();
+const industries = {
+  "Leather": {"tds":800,"ph":5.5,"turbidity":40,"contamination":"High","specific":"Chromium, Sulfides","primary":["Screening","Grit removal","Equalization"],"secondary":["Anaerobic lagoon","Activated sludge"],"tertiary":["Carbon adsorption","Membrane filtration","pH adjustment"], "equip":["Sedimentation tanks","Chromium recovery unit","RO membranes"], "walk":["Collect effluent samples","Neutralize pH","Sedimentation","Install membrane polishing"]},
+  "Textile": {"tds":600,"ph":6.5,"turbidity":30,"contamination":"High","specific":"Azo dyes, Salts","primary":["Equalization tank","Coagulation"],"secondary":["Oxidation ponds","MBBR"],"tertiary":["Nanofiltration","Advanced oxidation"], "equip":["Coagulation units","AOP reactors","Nanofiltration modules"], "walk":["Segregate dye streams","Coagulation-flocculation","Advanced oxidation","Reuse in non-critical processes"]},
+  "Dairy": {"tds":350,"ph":6.8,"turbidity":12,"contamination":"Medium","specific":"Organic load, Fats","primary":["Screening","Sedimentation"],"secondary":["Activated sludge"],"tertiary":["Sand filtration","UV"], "equip":["Dissolved air flotation","Sand filters","UV disinfection"], "walk":["Cool & settle solids","Biological treatment","Sand filtration","Disinfect before reuse"]},
+  "Pharma": {"tds":900,"ph":4.8,"turbidity":50,"contamination":"Very High","specific":"APIs","primary":["Neutralization","Screening"],"secondary":["Biological treatment","SBR"],"tertiary":["Reverse osmosis","Advanced oxidation"], "equip":["Neutralization tanks","RO skid","AOP units"], "walk":["Contain hazardous streams","Neutralize acidic/basic effluents","RO + AOP polishing","Safe brine handling"]},
+  "Beverage": {"tds":300,"ph":7.0,"turbidity":8,"contamination":"Low","specific":"Sugars, Organics","primary":["Screening"],"secondary":["Aerated lagoons"],"tertiary":["Sand filtration","Chlorination"], "equip":["Sand filters","Chlorinators","Aeration tanks"], "walk":["Basic screening","Aeration","Filtration","Chlorination for reuse"]},
+  "Paper": {"tds":700,"ph":7.5,"turbidity":35,"contamination":"High","specific":"Lignin, colorants","primary":["Screening","Grit removal"],"secondary":["Activated sludge"],"tertiary":["Membrane filtration","Bleach treatment"], "equip":["Dissolved air flotation","Membrane systems","Chemical dosing"], "walk":["Screening","Biological oxidation","Membrane polishing","Dilution and reuse"]}
+};
+
+function parseQuery(){
+  const qs = new URLSearchParams(location.search);
+  return {industry: qs.get('industry') || 'Leather', region: qs.get('region') || 'Unknown'};
+}
+const params = parseQuery();
+document.getElementById('industryTitle').innerText = params.industry + ' Industry Simulation';
+document.getElementById('regionTitle').innerText = 'Region: ' + params.region;
+
+let base = industries[params.industry] || industries['Leather'];
+let state = {tds: base.tds, ph: base.ph, turbidity: base.turbidity, contamination: base.contamination};
+
+// render estimates
+function renderEst(){
+  document.getElementById('estPH').innerText = 'pH: ' + state.ph;
+  document.getElementById('estTDS').innerText = 'TDS: ' + state.tds + ' ppm';
+  document.getElementById('estTurb').innerText = 'Turbidity: ' + state.turbidity + ' NTU';
+  document.getElementById('estCont').innerText = 'Contamination: ' + state.contamination;
+  document.getElementById('specificPoll').innerText = 'Specific pollutants: ' + base.specific;
+  // indicator
+  const ind = document.getElementById('pollIndicator');
+  if(state.tds > 800 || state.turbidity > 45) { ind.innerText = 'High'; ind.className='indicator ind-high'; }
+  else if(state.tds > 400 || state.turbidity > 20) { ind.innerText = 'Medium'; ind.className='indicator ind-med'; }
+  else { ind.innerText = 'Low'; ind.className='indicator ind-low'; }
+}
+renderEst();
+
+// plan area
+function renderPlan(){
+  const plan = document.getElementById('planArea'); plan.innerHTML = '';
+  ['primary','secondary','tertiary'].forEach(stage=>{
+    const title = document.createElement('div'); title.className='font-semibold text-[#0077B6] mt-3'; title.innerText = stage.charAt(0).toUpperCase()+stage.slice(1);
+    plan.appendChild(title);
+    const ul = document.createElement('ul'); ul.className='list-disc list-inside text-sm ml-4';
+    (base[stage]||[]).forEach(s=>{
+      const li = document.createElement('li'); li.innerText = s; ul.appendChild(li);
+    });
+    plan.appendChild(ul);
+  });
+  // equip
+  const eq = document.getElementById('equipList'); eq.innerHTML = '';
+  (base.equip||[]).forEach(e=>{ const li = document.createElement('li'); li.innerText = e; eq.appendChild(li); });
+  // walkthrough
+  const walk = document.getElementById('walkthrough'); walk.innerHTML = '';
+  (base.walk||[]).forEach(w=>{ const li = document.createElement('li'); li.innerText = w; walk.appendChild(li); });
+}
+renderPlan();
+
+// quick actions log
+function addAction(text){ const qa = document.getElementById('quickActions'); const d = document.createElement('div'); d.className='p-2 rounded bg-[#F0FFFF] text-sm mb-2'; d.innerText = new Date().toLocaleTimeString() + ' — ' + text; qa.prepend(d); }
+addAction('Loaded base values for ' + params.industry + ' in ' + params.region + '.');
+
+// manual pollution apply/reset
+document.getElementById('applyPoll').addEventListener('click', ()=>{
+  const t = document.getElementById('addTDS').value, p = document.getElementById('addPH').value, tur = document.getElementById('addTurb').value;
+  const extraT = t ? parseFloat(t) : null;
+  const extraPH = p ? parseFloat(p) : null;
+  const extraTur = tur ? parseFloat(tur) : null;
+  if(extraT !== null) state.tds = Math.round(extraT);
+  if(extraPH !== null) state.ph = extraPH;
+  if(extraTur !== null) state.turbidity = Math.round(extraTur);
+  // contamination estimate
+  if(state.tds>800 || state.turbidity>45) state.contamination='Very High';
+  else if(state.tds>500 || state.turbidity>25) state.contamination='High';
+  else if(state.tds>300) state.contamination='Medium';
+  else state.contamination='Low';
+  renderEst(); addAction('Manual input applied. Recalculated pollution.');
+});
+
+document.getElementById('resetPoll').addEventListener('click', ()=>{
+  state = {tds: base.tds, ph: base.ph, turbidity: base.turbidity, contamination: base.contamination};
+  renderEst(); addAction('Reset to base industry values.');
+});
+
+// export plan
+document.getElementById('exportPlan').addEventListener('click', ()=>{
+  const payload = {industry: params.industry, region: params.region, state, plan: base, exportedAt: new Date().toISOString()};
+  const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = (params.industry + '-plan.json'); document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+});
+
+// save to dashboard
+document.getElementById('saveSim').addEventListener('click', ()=>{
+  const sims = JSON.parse(localStorage.getItem('sims') || '[]');
+  sims.push({industry: params.industry, region: params.region, state, plan: base, ts: Date.now()});
+  localStorage.setItem('sims', JSON.stringify(sims));
+  addAction('Saved simulation to Dashboard.');
+  alert('Saved to Dashboard. Open Dashboard to view.');
+});
+</script>
+</body>
+</html>
